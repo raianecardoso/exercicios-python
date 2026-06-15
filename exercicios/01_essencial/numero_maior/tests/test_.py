@@ -19,3 +19,5 @@ def test_options_resposta():
     assert resposta(10, 20, 5) == (20), f"Esperado valor (20)"
     assert resposta(7, 3, 9) == (9), f"Esperado valor (9)"
     assert resposta(4, 4, 2) == (4), f"Esperado valor (4)"
+    assert resposta(-4, 4, 2) == (4), f"Esperado valor (4)"
+    assert resposta(-4, 7, 2) == (7), f"Esperado valor (7)"
