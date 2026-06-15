@@ -1,2 +1,2 @@
-def resposta():
+def resposta(temperatura, tipo_conversao):
     pass
