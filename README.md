@@ -1,5 +1,7 @@
 # Trilha-Dev: Python - Repositório de exercícios Python com testes automatizados
 
+![test status](https://github.com/splor-mg/exercicios-python/raw/coverage-badge/tests.svg?raw=true)
+
 Repositório de exercícios Python com correções automáticas. Aqui, as soluções propostas para os exercícios recebem feedback instantâneo e automático via testes automatizados.
 
 ## Começe agora

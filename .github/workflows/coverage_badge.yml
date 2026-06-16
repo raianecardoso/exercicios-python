@@ -1,0 +1,49 @@
+name: Atualiza badge de testes
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'exercicios/**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configura Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Instala Poetry
+        run: pipx install poetry
+
+      - name: Instala dependências
+        run: poetry install
+
+      - name: Configura usuário git
+        uses: fregante/setup-git-user@v2
+
+      - name: Gera a badge de testes
+        continue-on-error: true
+        run: poetry run pytest --local-badge-output-dir . --local-badge-generate=status
+
+      - name: Publica a badge na branch coverage-badge
+        run: |
+          cp tests.svg /tmp/tests.svg
+          rm -f tests.svg
+          git fetch origin coverage-badge
+          git switch coverage-badge
+          cp /tmp/tests.svg tests.svg
+          git add -f tests.svg
+          git commit -m "Atualiza badge de testes" || echo "Nada a commitar"
+          git push origin coverage-badge
