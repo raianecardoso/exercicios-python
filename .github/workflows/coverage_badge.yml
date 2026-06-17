@@ -37,14 +37,14 @@ jobs:
         continue-on-error: true
         run: poetry run pytest --local-badge-output-dir . --local-badge-generate=status
 
-            - name: Publica a badge na branch coverage-badge
+      - name: Publica a badge na branch coverage-badge
         run: |
           git fetch origin
 
           if git show-ref --verify --quiet refs/remotes/origin/coverage-badge; then
             git switch coverage-badge
           else
-            git switch --orphan coverage-badge
+            git switch -c coverage-badge
             git rm -rf . || true
           fi
 
