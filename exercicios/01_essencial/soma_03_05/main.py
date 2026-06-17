@@ -1,3 +1,0 @@
-def resposta(n):
-    pass
-
