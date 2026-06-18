@@ -1,2 +1,4 @@
 def resposta(usuario, senha):
-    pass
+    while usuario == senha:
+        return "erro"
+    return "válido"
