@@ -1,2 +1,2 @@
 def resposta():
-    pass
+    return "ola mundo"
