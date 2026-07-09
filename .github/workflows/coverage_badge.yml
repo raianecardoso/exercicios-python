@@ -5,7 +5,10 @@ on:
     branches:
       - main
     paths:
-      - 'exercicios/**'
+      - "exercicios/**"
+      - "tests/**"
+      - "pyproject.toml"
+      - "poetry.lock"
   workflow_dispatch:
 
 permissions:
@@ -14,24 +17,21 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Configura Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: "3.12"
 
       - name: Instala Poetry
         run: pipx install poetry
 
       - name: Instala dependências
         run: poetry install
-
-      - name: Configura usuário git
-        uses: fregante/setup-git-user@v2
 
       - name: Gera badge
         continue-on-error: true
@@ -40,30 +40,19 @@ jobs:
             --local-badge-output-dir . \
             --local-badge-generate=status
 
-      - name: Verifica arquivos
+      - name: Verifica se a badge foi gerada
         run: |
-          pwd
-          ls -lah
-          find . -name "*.svg"
+          test -f tests.svg
+
+      - name: Prepara diretório para publicação
+        run: |
+          mkdir badge
+          cp tests.svg badge/
 
       - name: Publica badge
-        run: |
-
-          git fetch origin
-
-          # A branch existe?
-          if git ls-remote --exit-code --heads origin coverage-badge; then
-            git switch -c coverage-badge --track origin/coverage-badge
-          else
-            git switch --orphan coverage-badge
-            git rm -rf . || true
-          fi
-
-          # Recupera somente a badge gerada na main
-          git checkout main -- tests.svg
-
-          git add tests.svg
-
-          git commit -m "Atualiza badge de testes" || echo "Nenhuma alteração"
-
-          git push origin coverage-badge
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: coverage-badge
+          publish_dir: badge
+          force_orphan: true
