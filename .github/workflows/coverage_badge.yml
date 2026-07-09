@@ -40,6 +40,12 @@ jobs:
             --local-badge-output-dir . \
             --local-badge-generate=status
 
+      - name: Verifica arquivos
+        run: |
+          pwd
+          ls -lah
+          find . -name "*.svg"
+
       - name: Publica badge
         run: |
 
