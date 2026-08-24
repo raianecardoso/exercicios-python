@@ -1,0 +1,87 @@
+name: Atualiza badge dos exercícios obrigatórios
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "exercicios/01_essencial/**"
+      - ".github/workflows/coverage_badge_obrigatorios.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configura Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instala Poetry
+        run: pipx install poetry
+
+      - name: Instala dependências
+        run: poetry install
+
+      - name: Executa testes e gera badge
+        run: |
+          echo "==== INICIANDO A EXECUÇÃO DOS TESTES DOS OBRIGATÓRIOS ===="
+
+          # Roda os testes só da pasta 01_essencial e salva o relatório.
+          # O '|| true' impede que falhas de teste interrompam o workflow:
+          # aqui o objetivo é medir a porcentagem, não exigir 100%.
+          poetry run pytest exercicios/01_essencial --junitxml=report-obrigatorios.xml || true
+
+          # Calcula a porcentagem de testes que passaram a partir do relatório.
+          PCT=$(python -c "
+          import xml.etree.ElementTree as ET
+          r = ET.parse('report-obrigatorios.xml').getroot()
+          t=f=e=s=0
+          for su in r.iter('testsuite'):
+              t+=int(su.get('tests',0)); f+=int(su.get('failures',0))
+              e+=int(su.get('errors',0)); s+=int(su.get('skipped',0))
+          c=t-s
+          p=max(c-f-e,0)
+          print(round(p/c*100) if c else 0)
+          ")
+
+          echo "==== PORCENTAGEM CALCULADA: ${PCT}% ===="
+
+          # Cor conforme o critério de certificação (50%):
+          #   >= 50% -> verde (certificável) | 25-49% -> laranja | < 25% -> vermelho
+          if [ "$PCT" -ge 50 ]; then
+            COLOR="brightgreen"
+          elif [ "$PCT" -ge 25 ]; then
+            COLOR="orange"
+          else
+            COLOR="red"
+          fi
+
+          echo "==== VARIÁVEIS DEFINIDAS: Porcentagem -> ${PCT}% | Cor -> $COLOR ===="
+
+          curl -o obrigatorios.svg "https://img.shields.io/badge/exerc%C3%ADcios%20obrigat%C3%B3rios-${PCT}%25-${COLOR}"
+          echo "==== BADGE BAIXADA DO SHIELDS.IO ===="
+
+      - name: Verifica se a badge foi gerada
+        run: test -f obrigatorios.svg
+
+      - name: Prepara diretório para publicação
+        run: |
+          mkdir badge
+          cp obrigatorios.svg badge/
+
+      - name: Publica badge
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: badge-obrigatorios
+          publish_dir: badge
+          force_orphan: true
