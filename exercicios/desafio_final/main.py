@@ -1,2 +1,4 @@
 def resposta(mensagem, chave):
-    pass
+    for letra in mensagem: 
+        if letra.isalpha():
+            pass
