@@ -11,6 +11,6 @@ def resposta(mensagem, chave):
             resultado += char
     return resultado
 
-mensagem_decodificada = resposta("MXOXYBKP, ! SLZB ZLKZIRFR L ZROPL QOFIEX ABS MVQELK", 23)
+mensagem_decodificada = resposta("GRIRSVEJ, IRZREV! MFTV TFETCLZL F TLIJF KIZCYR UVM GPKYFE", 17)
 
 print(mensagem_decodificada)
